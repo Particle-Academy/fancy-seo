@@ -61,6 +61,13 @@ class ValidateCommand extends Command
                 continue;
             }
 
+            // Skip noindex routes entirely — they're explicitly excluded from
+            // search, so a missing/duplicate title or description is intentional,
+            // not a defect (admin, auth, checkout, …).
+            if (Str::contains($data->robots, 'noindex')) {
+                continue;
+            }
+
             foreach ($this->lintData($data) as [$severity, $message]) {
                 $findings[] = ['route' => $name, 'uri' => $uri, 'severity' => $severity, 'message' => $message];
             }

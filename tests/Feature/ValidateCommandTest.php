@@ -32,3 +32,18 @@ it('treats thin titles as warnings under --strict', function () {
     $this->artisan('fancy-seo:validate', ['--strict' => true])
         ->assertExitCode(1);
 });
+
+it('skips noindex routes entirely (no false-positive defects)', function () {
+    // Two NOINDEX routes that share a title — if they were linted they'd add two
+    // more "duplicate title" errors on top of the beforeEach dup.a/dup.b pair
+    // (→ 4). Skipping noindex keeps the count at 2, proving they were excluded.
+    Route::get('admin-a', fn () => '')->name('admin.a');
+    Route::get('admin-b', fn () => '')->name('admin.b');
+
+    app(FancySeo::class)
+        ->route('admin.a', ['title' => 'Dashboard', 'noindex' => true])
+        ->route('admin.b', ['title' => 'Dashboard', 'noindex' => true]);
+
+    $this->artisan('fancy-seo:validate', ['--format' => 'json'])
+        ->expectsOutputToContain('"errors": 2'); // only the two indexable dupes
+});
