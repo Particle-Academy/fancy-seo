@@ -148,6 +148,38 @@ class JsonLd
         ];
     }
 
+    /**
+     * Ordered, instructional steps. Emit only on pages whose visible content is
+     * genuinely a how-to with ordered steps (HowTo no longer renders as a Google
+     * rich result, but the markup still aids machine understanding + AI answers).
+     *
+     * @param  list<array{name:string,text:string,url?:string,image?:string}>  $steps
+     * @return array<string,mixed>
+     */
+    public static function howTo(string $name, array $steps, ?string $description = null): array
+    {
+        $node = ['@context' => self::CONTEXT, '@type' => 'HowTo', 'name' => $name];
+        if ($description !== null) {
+            $node['description'] = $description;
+        }
+        $node['step'] = array_map(
+            function (array $step, int $i): array {
+                $s = ['@type' => 'HowToStep', 'position' => $i + 1, 'name' => $step['name'], 'text' => $step['text']];
+                foreach (['url', 'image'] as $key) {
+                    if (isset($step[$key])) {
+                        $s[$key] = $step[$key];
+                    }
+                }
+
+                return $s;
+            },
+            $steps,
+            array_keys($steps),
+        );
+
+        return $node;
+    }
+
     /** @return array<string,mixed> */
     public static function collectionPage(string $name, string $url, ?string $description = null): array
     {

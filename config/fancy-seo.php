@@ -13,6 +13,9 @@ return [
     'title' => null,            // default <title>; null → site_name
     'description' => null,      // default meta description
     'image' => null,           // default og/twitter image (absolute or root-relative)
+    'image_alt' => null,        // og:image:alt / twitter:image:alt (accessible card text)
+    'image_width' => null,      // og:image:width (px) — set when the default card has fixed dims
+    'image_height' => null,     // og:image:height (px)
     'locale' => 'en_US',
     'type' => 'website',        // default og:type
     'twitter_site' => null,     // @handle for twitter:site
@@ -28,6 +31,17 @@ return [
     'robots' => 'index, follow, max-image-preview:large',
     'noindex_robots' => 'noindex, nofollow',
     'noindex_routes' => [],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Content Security Policy
+    |--------------------------------------------------------------------------
+    | Optional nonce applied to the inline JSON-LD <script> tags so a strict
+    | `script-src 'nonce-…'` CSP doesn't drop your structured data. Leave null
+    | when you don't run a CSP. For a per-request nonce, pass it to the head
+    | component instead: <x-fancy-seo::head :nonce="$cspNonce" />.
+    */
+    'csp_nonce' => null,
 
     /*
     |--------------------------------------------------------------------------

@@ -27,6 +27,9 @@ class SeoData
         public readonly ?string $twitterSite = null,
         public readonly ?string $themeColor = null,
         public readonly string $twitterCard = 'summary_large_image',
+        public readonly ?string $imageAlt = null,
+        public readonly ?int $imageWidth = null,
+        public readonly ?int $imageHeight = null,
     ) {}
 
     /** @return array<string,mixed> */
@@ -46,6 +49,9 @@ class SeoData
             'twitterSite' => $this->twitterSite,
             'themeColor' => $this->themeColor,
             'twitterCard' => $this->twitterCard,
+            'imageAlt' => $this->imageAlt,
+            'imageWidth' => $this->imageWidth,
+            'imageHeight' => $this->imageHeight,
         ];
     }
 }

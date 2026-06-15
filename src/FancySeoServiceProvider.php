@@ -2,6 +2,7 @@
 
 namespace FancySeo;
 
+use FancySeo\Console\ValidateCommand;
 use FancySeo\Http\Controllers\MarkdownController;
 use FancySeo\Http\Controllers\SeoController;
 use Illuminate\Support\Facades\Blade;
@@ -27,6 +28,8 @@ class FancySeoServiceProvider extends ServiceProvider
         $this->registerRoutes();
 
         if ($this->app->runningInConsole()) {
+            $this->commands([ValidateCommand::class]);
+
             $this->publishes([
                 __DIR__.'/../config/fancy-seo.php' => config_path('fancy-seo.php'),
             ], 'fancy-seo-config');

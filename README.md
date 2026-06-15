@@ -113,8 +113,53 @@ FancySeo::markdownUsing(fn (string $path) => MarkdownContent::for($path)); // nu
 
 `FancySeo\JsonLd` mirrors `@particle-academy/fancy-inertia/seo`'s builders —
 `website`, `organization`, `softwareApplication`, `softwareSourceCode`, `article`,
-`breadcrumbList`, `faqPage`, `collectionPage`. Each returns a plain array with the
-`@context`/`@type` set; pass them to `defaults()` / `route()` / `for()`.
+`breadcrumbList`, `faqPage`, `howTo`, `collectionPage`. Each returns a plain array
+with the `@context`/`@type` set; pass them to `defaults()` / `route()` / `for()`.
+
+`howTo()` and `faqPage()` no longer render as Google rich results, but the markup
+still strengthens machine understanding + AI answers — emit them only on pages
+whose **visible** content genuinely is an ordered how-to / Q&A.
+
+## Social images
+
+Set richer Open Graph / Twitter card metadata via the resolved payload (or the
+`image_alt` / `image_width` / `image_height` config defaults):
+
+```php
+FancySeo::for([
+    'image' => '/og/react-fancy.png',
+    'imageAlt' => 'react-fancy — Tailwind v4 React primitives',
+    'imageWidth' => 1200,
+    'imageHeight' => 630,
+]);
+```
+
+The head component emits `og:image:alt|width|height` + `twitter:image:alt`.
+
+## Content Security Policy
+
+Under a strict `script-src 'nonce-…'` CSP, pass the nonce so the inline JSON-LD
+isn't dropped: `<x-fancy-seo::head :nonce="$cspNonce" />` (or set a static
+`fancy-seo.csp_nonce` in config).
+
+## Validate in CI
+
+`php artisan fancy-seo:validate` lints every parameter-less, named GET route the
+way `<x-fancy-seo::head>` renders it — missing/duplicate titles, thin or
+over-long descriptions, missing/relative canonicals, noindex leaks, and malformed
+JSON-LD. Use `--format=json|junit` for machine output and `--strict` to fail on
+warnings:
+
+```yaml
+- run: php artisan fancy-seo:validate --format=junit --strict
+```
+
+## Roadmap
+
+Not yet shipped (open an issue if you need them sooner):
+
+- **hreflang** locale clusters + reciprocal `x-default` (for multilingual sites).
+- **Sitemap index / chunking** for sites above the 50k-URL per-file limit.
 
 ## License
 

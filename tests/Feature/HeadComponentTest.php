@@ -28,6 +28,26 @@ it('renders the full server-side head block', function () {
     $html->assertSee('SoftwareSourceCode', false);
 });
 
+it('renders og/twitter image alt + dimensions and a CSP nonce', function () {
+    app(FancySeo::class)->for([
+        'title' => 'Card page',
+        'image' => '/og/card.png',
+        'imageAlt' => 'A Fancy UI social card',
+        'imageWidth' => 1200,
+        'imageHeight' => 630,
+        'jsonLd' => [JsonLd::website('Example', 'https://example.test/')],
+    ]);
+    $data = app(FancySeo::class)->forRequest(Request::create('https://example.test/card'));
+
+    $html = $this->blade('<x-fancy-seo::head :seo="$seo" nonce="abc123" />', ['seo' => $data]);
+
+    $html->assertSee('property="og:image:alt" content="A Fancy UI social card"', false);
+    $html->assertSee('property="og:image:width" content="1200"', false);
+    $html->assertSee('property="og:image:height" content="630"', false);
+    $html->assertSee('name="twitter:image:alt" content="A Fancy UI social card"', false);
+    $html->assertSee('application/ld+json" nonce="abc123"', false);
+});
+
 it('renders noindex robots for a noindex page', function () {
     app(FancySeo::class)->for(['noindex' => true, 'title' => 'Admin']);
     $data = app(FancySeo::class)->forRequest(Request::create('https://example.test/admin'));

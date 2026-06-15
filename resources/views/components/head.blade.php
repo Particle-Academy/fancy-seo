@@ -1,8 +1,9 @@
-@props(['seo' => null])
+@props(['seo' => null, 'nonce' => null])
 @php
     /** @var \FancySeo\SeoData $data */
     $data = $seo ?? app(\FancySeo\FancySeo::class)->forRequest(request());
     $kw = is_array($data->keywords) ? implode(', ', $data->keywords) : (string) $data->keywords;
+    $cspNonce = $nonce ?? config('fancy-seo.csp_nonce');
 @endphp
 <title inertia>{{ $data->title }}</title>
 @if ($data->description !== '')
@@ -27,6 +28,15 @@
 <meta head-key="og:url" property="og:url" content="{{ $data->canonical }}">
 @if ($data->image)
 <meta head-key="og:image" property="og:image" content="{{ $data->image }}">
+@if ($data->imageAlt)
+<meta head-key="og:image:alt" property="og:image:alt" content="{{ $data->imageAlt }}">
+@endif
+@if ($data->imageWidth)
+<meta head-key="og:image:width" property="og:image:width" content="{{ $data->imageWidth }}">
+@endif
+@if ($data->imageHeight)
+<meta head-key="og:image:height" property="og:image:height" content="{{ $data->imageHeight }}">
+@endif
 @endif
 <meta head-key="og:locale" property="og:locale" content="{{ $data->locale }}">
 
@@ -41,6 +51,9 @@
 @endif
 @if ($data->image)
 <meta head-key="twitter:image" name="twitter:image" content="{{ $data->image }}">
+@if ($data->imageAlt)
+<meta head-key="twitter:image:alt" name="twitter:image:alt" content="{{ $data->imageAlt }}">
+@endif
 @endif
 
 {{-- LLM / AI discovery --}}
@@ -50,5 +63,5 @@
 
 {{-- Structured data --}}
 @foreach ($data->jsonLd as $node)
-<script type="application/ld+json">{!! json_encode($node, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
+<script type="application/ld+json"@if ($cspNonce) nonce="{{ $cspNonce }}"@endif>{!! json_encode($node, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
 @endforeach
