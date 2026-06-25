@@ -27,10 +27,16 @@ class SeoController
 
     public function sitemap(): Response
     {
-        $base = $this->seo->baseUrl();
+        $disallow = $this->disallowedPaths();
         $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n"
             .'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'."\n";
         foreach ($this->seo->sitemapUrls() as $u) {
+            // Leak-guard: never advertise a path robots.txt disallows. A sitemap
+            // that lists a blocked (often private) path leaks it AND wastes crawl
+            // budget — fancy-x-files enforces the same rule for the files it owns.
+            if ($this->isDisallowed((string) $u['loc'], $disallow)) {
+                continue;
+            }
             $xml .= '  <url>'
                 .'<loc>'.htmlspecialchars($u['loc'], ENT_XML1).'</loc>'
                 .(($u['lastmod'] ?? null) ? '<lastmod>'.$u['lastmod'].'</lastmod>' : '')
@@ -41,9 +47,35 @@ class SeoController
         $xml .= '</urlset>'."\n";
 
         // A sitemap with no registered providers still validates (empty urlset).
-        unset($base);
-
         return $this->text($xml, 'application/xml; charset=utf-8');
+    }
+
+    /**
+     * Paths the sitemap must never list — the robots.txt Disallow set, so the
+     * sitemap can't advertise a blocked path.
+     *
+     * @return list<string>
+     */
+    protected function disallowedPaths(): array
+    {
+        return array_values(array_filter(
+            (array) config('fancy-seo.robots_txt.disallow', []),
+            'is_string',
+        ));
+    }
+
+    /** @param  list<string>  $disallow */
+    protected function isDisallowed(string $loc, array $disallow): bool
+    {
+        $path = parse_url($loc, PHP_URL_PATH) ?: '/';
+        foreach ($disallow as $rule) {
+            $prefix = rtrim($rule, '/');
+            if ($prefix !== '' && ($path === $prefix || str_starts_with($path, $prefix.'/'))) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function robots(): Response

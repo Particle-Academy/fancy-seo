@@ -20,6 +20,21 @@ it('serves sitemap.xml with registered URLs', function () {
     $res->assertSee('<priority>1.0</priority>', false);
 });
 
+it('omits robots-disallowed paths from the sitemap (leak-safety)', function () {
+    config()->set('fancy-seo.robots_txt.disallow', ['/admin']);
+    app(FancySeo::class)->sitemap(function ($map): void {
+        $map->add('/');
+        $map->add('packages');
+        $map->add('admin/secret');
+    });
+
+    $body = (string) $this->get('/sitemap.xml')->assertOk()->getContent();
+
+    expect($body)
+        ->toContain('<loc>https://example.test/packages</loc>') // public URL stays
+        ->not->toContain('/admin/secret');                      // disallowed path never advertised
+});
+
 it('serves robots.txt welcoming AI bots + referencing the sitemap', function () {
     config()->set('fancy-seo.robots_txt.disallow', ['/admin']);
     config()->set('fancy-seo.robots_txt.ai_bots', ['ClaudeBot', 'GPTBot']);

@@ -89,12 +89,22 @@ Auto-registered (toggle each in `config/fancy-seo.php`):
 
 | Route | What |
 |---|---|
-| `/sitemap.xml` | every URL you register via `FancySeo::sitemap(...)` |
-| `/robots.txt` | crawl policy — welcomes LLM bots, references the sitemap |
+| `/sitemap.xml` | every URL you register via `FancySeo::sitemap(...)` — paths in `robots_txt.disallow` are auto-excluded (a sitemap must never advertise a blocked path) |
+| `/robots.txt` | crawl policy — welcomes LLM bots (each gets its own group with the disallow set re-applied, so a private path can't leak), references the sitemap |
 | `/llms.txt`, `/llms-full.txt` | the [llmstxt.org](https://llmstxt.org) Markdown index you register via `FancySeo::llms(...)` |
 | `/.well-known/security.txt` | RFC 9116 (only when a contact is configured) |
 | `/humans.txt` | colophon |
 | `/{path}.md` | per-page raw Markdown (opt-in) via `FancySeo::markdownUsing(...)` |
+
+> **Well-known files vs. SEO meta.** fancy-seo's job is the per-route SEO
+> `<head>` + JSON-LD + the dynamic sitemap *data*. For richer, leak-proof
+> management of the *files* — robots / sitemap / security / humans / llms /
+> AGENTS with an admin-editable model and a `protect()` rail that keeps private
+> paths disallowed for **every** bot group — pair it with
+> [`particle-academy/fancy-x-files`](https://github.com/Particle-Academy/fancy-x-files):
+> turn off the routes you delegate (`config/fancy-seo.php` → `routes`) and let
+> x-files own them, feeding it `FancySeo::sitemapUrls()` for a dynamic, leak-safe
+> sitemap. That is the recommended pairing — fancy-seo for meta, x-files for files.
 
 ```php
 FancySeo::sitemap(function ($map) {
