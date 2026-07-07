@@ -133,7 +133,7 @@ whose **visible** content genuinely is an ordered how-to / Q&A.
 ## Social images
 
 Set richer Open Graph / Twitter card metadata via the resolved payload (or the
-`image_alt` / `image_width` / `image_height` config defaults):
+`image_alt` / `image_width` / `image_height` / `image_type` config defaults):
 
 ```php
 FancySeo::for([
@@ -141,10 +141,13 @@ FancySeo::for([
     'imageAlt' => 'react-fancy — Tailwind v4 React primitives',
     'imageWidth' => 1200,
     'imageHeight' => 630,
+    'imageType' => 'image/png',
 ]);
 ```
 
-The head component emits `og:image:alt|width|height` + `twitter:image:alt`.
+The head component emits `og:image:alt|width|height|type` + `twitter:image:alt`.
+Declaring the real card dimensions (1200×630) + MIME type helps scrapers like
+LinkedIn pick the large-card layout instead of falling back to a small square.
 
 ## Content Security Policy
 

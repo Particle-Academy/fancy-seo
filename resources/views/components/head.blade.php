@@ -37,6 +37,9 @@
 @if ($data->imageHeight)
 <meta head-key="og:image:height" property="og:image:height" content="{{ $data->imageHeight }}">
 @endif
+@if ($data->imageType)
+<meta head-key="og:image:type" property="og:image:type" content="{{ $data->imageType }}">
+@endif
 @endif
 <meta head-key="og:locale" property="og:locale" content="{{ $data->locale }}">
 

@@ -35,6 +35,7 @@ it('renders og/twitter image alt + dimensions and a CSP nonce', function () {
         'imageAlt' => 'A Fancy UI social card',
         'imageWidth' => 1200,
         'imageHeight' => 630,
+        'imageType' => 'image/png',
         'jsonLd' => [JsonLd::website('Example', 'https://example.test/')],
     ]);
     $data = app(FancySeo::class)->forRequest(Request::create('https://example.test/card'));
@@ -44,6 +45,7 @@ it('renders og/twitter image alt + dimensions and a CSP nonce', function () {
     $html->assertSee('property="og:image:alt" content="A Fancy UI social card"', false);
     $html->assertSee('property="og:image:width" content="1200"', false);
     $html->assertSee('property="og:image:height" content="630"', false);
+    $html->assertSee('property="og:image:type" content="image/png"', false);
     $html->assertSee('name="twitter:image:alt" content="A Fancy UI social card"', false);
     $html->assertSee('application/ld+json" nonce="abc123"', false);
 });

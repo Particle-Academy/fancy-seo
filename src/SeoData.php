@@ -30,6 +30,7 @@ class SeoData
         public readonly ?string $imageAlt = null,
         public readonly ?int $imageWidth = null,
         public readonly ?int $imageHeight = null,
+        public readonly ?string $imageType = null,
     ) {}
 
     /** @return array<string,mixed> */
@@ -52,6 +53,7 @@ class SeoData
             'imageAlt' => $this->imageAlt,
             'imageWidth' => $this->imageWidth,
             'imageHeight' => $this->imageHeight,
+            'imageType' => $this->imageType,
         ];
     }
 }

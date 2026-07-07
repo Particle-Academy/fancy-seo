@@ -16,6 +16,7 @@ return [
     'image_alt' => null,        // og:image:alt / twitter:image:alt (accessible card text)
     'image_width' => null,      // og:image:width (px) — set when the default card has fixed dims
     'image_height' => null,     // og:image:height (px)
+    'image_type' => null,       // og:image:type MIME (e.g. image/png) — helps scrapers trust the card
     'locale' => 'en_US',
     'type' => 'website',        // default og:type
     'twitter_site' => null,     // @handle for twitter:site

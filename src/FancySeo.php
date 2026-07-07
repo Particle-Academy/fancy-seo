@@ -191,6 +191,7 @@ class FancySeo
             imageAlt: $data['imageAlt'] ?? config('fancy-seo.image_alt'),
             imageWidth: isset($data['imageWidth']) ? (int) $data['imageWidth'] : config('fancy-seo.image_width'),
             imageHeight: isset($data['imageHeight']) ? (int) $data['imageHeight'] : config('fancy-seo.image_height'),
+            imageType: $data['imageType'] ?? config('fancy-seo.image_type'),
         );
     }
 
