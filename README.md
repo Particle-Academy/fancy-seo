@@ -1,6 +1,6 @@
-<p align="left"><img src="./art/fancy-ui.svg" alt="Fancy UI" height="28"></p>
-
 # particle-academy/fancy-seo
+
+[![Fancified](art/fancified.svg)](https://particle.academy)
 
 **Server-rendered SEO + crawlability for Laravel + Inertia apps.**
 
