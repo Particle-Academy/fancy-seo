@@ -199,8 +199,43 @@ class FancySeo
     public function sitemapUrls(): array
     {
         $builder = new SitemapBuilder(rtrim((string) ($this->defaults['url'] ?? config('app.url')), '/'));
-        foreach ($this->sitemapProviders as $provider) {
-            $provider($builder);
+
+        foreach ($this->sitemapProviders as $i => $provider) {
+            $before = count($builder->all());
+            $returned = $provider($builder);
+            $contributed = count($builder->all()) - $before;
+
+            // A provider that RETURNED a list of URLs and ADDED none meant to add
+            // them. Until this check existed it was discarded in silence and
+            // `/sitemap.xml` answered 200 with a valid, empty urlset -- which
+            // looks identical to a site that has nothing to list, at every layer.
+            // Reported by the GuardCard team after it cost them real time.
+            //
+            // Both halves of the condition carry weight:
+            //
+            //   - RETURNED A LIST, not merely non-null. `$map->add(...)` returns
+            //     `$this`, so `fn ($map) => $map->add('/')` legitimately returns a
+            //     SitemapBuilder. Keying on non-null would reject the idiomatic
+            //     chain.
+            //   - ADDED NOTHING. A provider that adds URLs *and* returns a list is
+            //     sloppy, not broken, and throwing there would break live sitemaps
+            //     to punish a style. A provider that adds nothing and returns
+            //     nothing is legitimate too — a feature flag off, a query with no
+            //     rows.
+            //
+            // So this fires only on the case that cannot mean anything else.
+            if ($contributed === 0 && (is_array($returned) || $returned instanceof \Traversable)) {
+                $lost = is_array($returned) ? count($returned) : iterator_count($returned);
+
+                throw new \LogicException(sprintf(
+                    'Sitemap provider #%d returned %d URL(s) instead of adding them, so they were dropped. '
+                    .'A provider is handed a SitemapBuilder and its return value is discarded: call $map->add($path) '
+                    .'or $map->addMany($paths). Change `->sitemap(fn () => [...])` to '
+                    .'`->sitemap(fn ($map) => $map->addMany([...]))`.',
+                    $i + 1,
+                    $lost,
+                ));
+            }
         }
 
         return $builder->all();

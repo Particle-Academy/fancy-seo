@@ -13,6 +13,51 @@ upgrading.
 
 ---
 
+## [0.6.0] - 2026-10-02
+
+### Fixed
+
+- **BREAKING (loudly, on purpose): a sitemap provider that RETURNS its URLs
+  instead of adding them now throws instead of silently producing an empty
+  sitemap.**
+
+  `sitemap()` hands your closure a `SitemapBuilder` and **discards the return
+  value**. So this:
+
+  ```php
+  FancySeo::sitemap(fn () => ['/', '/about']);          // WRONG
+  ```
+
+  contributed nothing, and `/sitemap.xml` answered **200** with a valid, empty
+  `<urlset>`. There was no exception, no log line and no signal at any layer — a
+  silently empty sitemap looks exactly like a site with nothing to list, which is
+  why it survives review and deploys. Reported by the GuardCard team after it
+  cost them real time.
+
+  **What you must do:** nothing, unless you have this bug — in which case your
+  sitemap has been empty all along and you now get told. The fix is to add rather
+  than return:
+
+  ```php
+  FancySeo::sitemap(fn ($map) => $map->addMany(['/', '/about']));
+  ```
+
+  **Why this is BREAKING even though it only fires on broken code:** a route that
+  answered 200 can now answer 500. That is the correct trade — an empty sitemap is
+  a silent SEO outage, and a loud failure is strictly better than a quiet one —
+  but it is a behaviour change and belongs under this heading rather than buried.
+
+  **It fires only on the case that cannot mean anything else:** the provider
+  returned a list AND added nothing. Deliberately *not* errors: returning the
+  builder (`fn ($map) => $map->add('/')` — `add()` returns `$this`, so the
+  idiomatic chain returns a builder); adding URLs *and* returning a list (sloppy,
+  not broken — throwing would break live sitemaps to punish a style); and adding
+  nothing while returning nothing (legitimate — a feature flag off, a query with
+  no rows). The message names the provider's position, how many URLs were dropped,
+  and what to call instead, because "invalid provider" would just send you back
+  here.
+
+
 ## [Unreleased]
 
 ## 0.5.0 — 2026-08-07

@@ -114,6 +114,13 @@ FancySeo::sitemap(function ($map) {
     }
 });
 
+// A provider ADDS to the builder. It must not RETURN its urls -- the return
+// value is discarded, and `fn () => ['/', '/about']` used to produce a valid,
+// EMPTY sitemap answering 200, which is indistinguishable from a site with
+// nothing to list. Since 0.6.0 that throws instead of going quiet. Returning the
+// builder is fine: `fn ($map) => $map->add('/')` is the idiomatic chain.
+FancySeo::sitemap(fn ($map) => $map->addMany(['/', '/about']));   // many at once
+
 FancySeo::llms(fn (FancySeo $seo) => view('seo.llms')->render());
 
 FancySeo::markdownUsing(fn (string $path) => MarkdownContent::for($path)); // null → 404
