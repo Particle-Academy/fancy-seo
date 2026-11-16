@@ -57,17 +57,17 @@ use FancySeo\Facades\FancySeo;
 use FancySeo\JsonLd;
 
 FancySeo::defaults([
-    'site_name' => 'Fancy UI',
+    'site_name' => 'Fancy Dev Kit',
     'image' => '/og/default.png',
     'twitterSite' => '@particleacademy',
     'jsonLd' => [
-        JsonLd::website('Fancy UI', url('/'), searchUrlTemplate: url('/search?q={search_term_string}')),
-        JsonLd::softwareApplication('Fancy UI', url('/'), ['applicationCategory' => 'DeveloperApplication', 'operatingSystem' => 'Web', 'price' => '0']),
+        JsonLd::website('Fancy Dev Kit', url('/'), searchUrlTemplate: url('/search?q={search_term_string}')),
+        JsonLd::softwareApplication('Fancy Dev Kit', url('/'), ['applicationCategory' => 'DeveloperApplication', 'operatingSystem' => 'Web', 'price' => '0']),
     ],
 ]);
 
 FancySeo::route('packages.show', fn (array $params) => [
-    'title' => "{$params['package']} — Fancy UI",
+    'title' => "{$params['package']} — Fancy Dev Kit",
     'jsonLd' => [JsonLd::softwareSourceCode($params['package'], url("/packages/{$params['package']}"), "https://github.com/Particle-Academy/{$params['package']}", ['programmingLanguage' => 'TypeScript'])],
 ]);
 
@@ -187,7 +187,7 @@ MIT
 
 ---
 
-## ⭐ Star Fancy UI
+## ⭐ Star Fancy Dev Kit
 
 If this package is useful to you, a quick ⭐ on the repo really helps us build a
 better kit. Thank you!

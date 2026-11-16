@@ -13,6 +13,12 @@ upgrading.
 
 ---
 
+## [Unreleased]
+
+### Changed
+
+- Rebranded the display name to Fancy Dev Kit (README and package description). Package names, the npm scope, URLs and the `fancy-ui` MCP id are unchanged.
+
 ## [0.6.0] - 2026-10-02
 
 ### Fixed
@@ -57,8 +63,6 @@ upgrading.
   and what to call instead, because "invalid provider" would just send you back
   here.
 
-
-## [Unreleased]
 
 ## 0.5.0 — 2026-08-07
 
