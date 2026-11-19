@@ -1,6 +1,7 @@
 <?php
 
 use FancySeo\FancySeo;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 beforeEach(function () {
@@ -15,22 +16,21 @@ beforeEach(function () {
 });
 
 it('passes a clean route and flags duplicate titles', function () {
-    $this->artisan('fancy-seo:validate')
-        ->assertExitCode(1); // the duplicate <title> is an error
+    expect(Artisan::call('fancy-seo:validate'))->toBe(1); // the duplicate <title> is an error
 });
 
 it('emits machine-readable json with a summary', function () {
-    $this->artisan('fancy-seo:validate', ['--format' => 'json'])
-        ->expectsOutputToContain('"errors": 2') // both dup routes flagged
-        ->assertExitCode(1);
+    $exit = Artisan::call('fancy-seo:validate', ['--format' => 'json']);
+
+    expect(Artisan::output())->toContain('"errors": 2') // both dup routes flagged
+        ->and($exit)->toBe(1);
 });
 
 it('treats thin titles as warnings under --strict', function () {
     Route::get('thin', fn () => '')->name('thin');
     app(FancySeo::class)->route('thin', ['title' => 'Hi']); // 2 chars → under minimum
 
-    $this->artisan('fancy-seo:validate', ['--strict' => true])
-        ->assertExitCode(1);
+    expect(Artisan::call('fancy-seo:validate', ['--strict' => true]))->toBe(1);
 });
 
 it('skips noindex routes entirely (no false-positive defects)', function () {
@@ -44,6 +44,7 @@ it('skips noindex routes entirely (no false-positive defects)', function () {
         ->route('admin.a', ['title' => 'Dashboard', 'noindex' => true])
         ->route('admin.b', ['title' => 'Dashboard', 'noindex' => true]);
 
-    $this->artisan('fancy-seo:validate', ['--format' => 'json'])
-        ->expectsOutputToContain('"errors": 2'); // only the two indexable dupes
+    Artisan::call('fancy-seo:validate', ['--format' => 'json']);
+
+    expect(Artisan::output())->toContain('"errors": 2'); // only the two indexable dupes
 });
