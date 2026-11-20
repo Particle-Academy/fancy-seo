@@ -6,6 +6,7 @@ use FancySeo\FancySeoServiceProvider;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Bootstrap\LoadConfiguration;
+use Illuminate\Foundation\Configuration\ApplicationBuilder;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
@@ -36,11 +37,7 @@ class TestCase extends BaseTestCase
         // Blade's component compiler asks the application for its namespace, read from composer.json.
         file_put_contents($base.'/composer.json', json_encode(['autoload' => ['psr-4' => ['App\\' => 'app/']]]));
 
-        $app = Application::configure(basePath: $base)
-            ->withProviders([FancySeoServiceProvider::class], withBootstrapProviders: false)
-            ->withMiddleware(static function (Middleware $middleware): void {})
-            ->withExceptions(static function (Exceptions $exceptions): void {})
-            ->create();
+        $app = $this->configure($base)->create();
 
         $app->afterBootstrapping(LoadConfiguration::class, function (Application $app): void {
             $app['env'] = 'testing';
@@ -50,6 +47,15 @@ class TestCase extends BaseTestCase
         $app->make(Kernel::class)->bootstrap();
 
         return $app;
+    }
+
+    /** The application builder; a host test case adds its routes here. */
+    protected function configure(string $base): ApplicationBuilder
+    {
+        return Application::configure(basePath: $base)
+            ->withProviders([FancySeoServiceProvider::class], withBootstrapProviders: false)
+            ->withMiddleware(static function (Middleware $middleware): void {})
+            ->withExceptions(static function (Exceptions $exceptions): void {});
     }
 
     protected function defineEnvironment(Application $app): void

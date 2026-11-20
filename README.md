@@ -101,7 +101,13 @@ Auto-registered (toggle each in `config/fancy-seo.php`):
 | `/llms.txt`, `/llms-full.txt` | the [llmstxt.org](https://llmstxt.org) Markdown index you register via `FancySeo::llms(...)` |
 | `/.well-known/security.txt` | RFC 9116 (only when a contact is configured) |
 | `/humans.txt` | colophon |
-| `/{path}.md` | per-page raw Markdown (opt-in) via `FancySeo::markdownUsing(...)` |
+| `/{path}.md` | per-page raw Markdown (opt-in) via `FancySeo::markdownUsing(...)`; your own `.md` routes take precedence |
+
+> **Delete `public/robots.txt`.** The Laravel skeleton and the Fancy starter kit
+> ship one, and the web server serves files in `public/` before Laravel runs, so
+> fancy-seo's `/robots.txt` never answers while it exists. Remove it, and any
+> `public/sitemap.xml`, `public/llms.txt` or `public/humans.txt` you want
+> fancy-seo to serve instead.
 
 > **Well-known files vs. SEO meta.** fancy-seo's job is the per-route SEO
 > `<head>` + JSON-LD + the dynamic sitemap *data*. For richer, leak-proof

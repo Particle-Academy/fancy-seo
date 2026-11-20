@@ -56,6 +56,17 @@ overrides this package's server-rendered head per page via Inertia's `head-key`.
 - **`jsonLd` accumulates across layers**; every other key overrides.
 - **Strict CSP:** pass the nonce, `<x-fancy-seo::head :nonce="$cspNonce" />`,
   or the inline JSON-LD is dropped.
+- **Delete `public/robots.txt`.** The Laravel skeleton and the Fancy starter
+  kit ship one, and the web server serves a file in `public/` before Laravel
+  sees the request, so fancy-seo's `/robots.txt` never answers. Remove the
+  file (`rm public/robots.txt`); do the same for any `public/sitemap.xml`,
+  `public/llms.txt` or `public/humans.txt` you want fancy-seo to serve.
+- **The `{path}.md` route yields to your own `.md` routes.** It is registered
+  before `routes/web.php`, so once the app has booted it excludes every URL
+  one of your GET routes ending in `.md` matches (static or parameterised,
+  honouring that route's `where`). That holds under `route:cache`. Every other
+  `*.md` URL, including pages behind your parameterised routes, still reaches
+  `FancySeo::markdownUsing(...)`.
 - **Paths in `robots_txt.disallow` are excluded from the sitemap**
   automatically.
 - **`howTo()` / `faqPage()`** only on pages whose visible content really is a

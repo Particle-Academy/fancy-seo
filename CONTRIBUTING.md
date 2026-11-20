@@ -16,7 +16,20 @@ vendor/bin/pint        # format
 ## Tests
 
 Pest, under `tests/` (`tests/Feature/`, with `tests/Pest.php` and
-`tests/TestCase.php`).
+`tests/TestCase.php`). `tests/Host/` runs on `tests/HostTestCase.php`, a host
+whose routes load after the package boots, as `routes/web.php` does; use it for
+anything about route precedence.
+
+## The `{path}.md` catch-all
+
+It is registered in `boot()`, so it is in the route list BEFORE the host's
+routes, and Laravel takes the first match. A `booted()` callback narrows its
+`path` requirement to skip every host GET route ending in `.md`. Keep that a
+`where` on the route: moving the catch-all after the host's routes (or making
+it a fallback route) would hand `blog/hello.md` to a host's `blog/{slug}`,
+whose parameter matches `hello.md`. The `where` is compiled into the route
+cache. `tests/Host/MarkdownRoutePrecedenceTest.php` covers both, compiled and
+not.
 
 ## Layout
 

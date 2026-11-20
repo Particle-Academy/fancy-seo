@@ -23,6 +23,12 @@ upgrading.
 - **Docs:** `AGENTS.md` added: the guide to using this package (install, its entries on the Fancy MCP catalog server, API essentials, traps). `CONTRIBUTING.md` added for the contributor notes, with `CLAUDE.md` as a symlink to it. The README points to the MCP server and to `AGENTS.md`. No code changed; nothing to do.
 - CI: re-pin org third-party allowlist to 2614224
 - Tests: the suite boots a first-party Laravel kernel (`tests/TestCase.php`) instead of `orchestra/testbench`, which is removed from `require-dev`; Pest moves to `^5.0`. `laravel/framework` is now a direct test dependency (the framework this package integrates with). The command tests read `Artisan::output()` rather than mocked console output. Same 30 tests, same 88 assertions. No runtime change; nothing to do.
+- Tests: a second test case, `tests/HostTestCase.php`, builds a host whose routes load after the package boots (Laravel's own `withRouting()`), for the `tests/Host` suite. No runtime change; nothing to do.
+
+### Fixed
+
+- **The opt-in `{path}.md` route no longer takes URLs the host routes itself.** It is registered while the package boots, before the host's `routes/web.php`, so it matched first and answered for a host's own `about.md` or `docs/{page}.md` route. Once the app has booted it now excludes every URL one of the host's GET routes ending in `.md` matches (static or parameterised, honouring that route's `where`); the exclusion is part of the route's requirement, so it holds under `route:cache`. Every other `*.md` URL, including pages behind a parameterised host route such as `blog/{slug}`, still reaches `FancySeo::markdownUsing(...)`. Consumer action: none; if you cache routes, re-run `php artisan route:cache` after upgrading.
+- **Docs: delete `public/robots.txt`.** The Laravel skeleton and the Fancy starter kit ship one, and the web server serves it before Laravel runs, so fancy-seo's `/robots.txt` never answered. README and `AGENTS.md` now say so. Consumer action: `rm public/robots.txt` (and any `public/sitemap.xml`, `public/llms.txt` or `public/humans.txt` you want fancy-seo to serve).
 
 ## [0.6.0] - 2026-10-02
 
